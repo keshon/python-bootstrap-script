@@ -2,8 +2,8 @@
 setlocal enabledelayedexpansion
 
 set venv_folder=env
+REM Update path to python script that will be executed with "run" command
 set startup_file=src\main.py
-set default_code=# your code here
 
 REM Check if Python is installed
 where python > nul 2>&1
@@ -32,23 +32,26 @@ if not exist %venv_folder% (
 REM Activate the virtual environment
 call %venv_folder%\Scripts\activate.bat
 
-REM Check if the src/main.py file exists
-if not exist %startup_file% (
-    echo [INFO] src/main.py not found. Creating directory and default main.py file...
-    mkdir src
-    echo. >> %startup_file%
-    echo %default_code% >> %startup_file%
-    echo [INFO] src/main.py created successfully.
+echo [INFO] Entered local environment instance. You can now install additional packages or run the project with 'run' command.
+
+REM Start an infinite loop to accept commands
+:command_loop
+set /p command="> "
+if "%command%"=="run" (
+    echo [INFO] Running %startup_file%...
+    python %startup_file%
+) else (
+    if "%command%"=="exit" (
+        goto :exit_loop
+    ) else (
+        %command%
+    )
 )
+goto :command_loop
 
-echo [INFO] Running %startup_file%...
-
-REM Run the startup file from the virtual environment
-python %startup_file%
-
-REM Deactivate the virtual environment
+REM Exit the loop and deactivate the virtual environment
+:exit_loop
+echo [INFO] Exited local environment instance.
 deactivate
-
-echo [INFO] Project execution completed. DONE.
 
 endlocal
